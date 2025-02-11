@@ -84,10 +84,15 @@ def nfp_to_img(nfp):
 def _quantize_with_colors(image, colors, dither=0):
     pal_im = Image.new("P", (1, 1))
     color_vals = []
+    # Populate the palette with the 16 colors
     for color in colors:
-        for val in color:
-            color_vals.append(val)
-    color_vals = tuple(color_vals)
-    pal_im.putpalette(color_vals + colors[-1] * (256 - len(colors)))
+        color_vals.extend(color)  # R, G, B values
+    # Fill the remaining palette entries with black (to ensure only 16 colors are used)
+    color_vals = tuple(color_vals) + (0, 0, 0) * (256 - len(colors))
+    pal_im.putpalette(color_vals)
+    
+    # Convert the image to RGB before quantization
     image = image.convert(mode="RGB")
-    return image.quantize(palette=pal_im,dither=dither)
+    
+    # Perform quantization using the 16-color palette
+    return image.quantize(palette=pal_im, dither=dither)
