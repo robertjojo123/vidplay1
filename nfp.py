@@ -18,7 +18,7 @@ import numpy as np
 # values come from http://www.computercraft.info/wiki/Colors_(API)
 CC_COLORS = (
     (240, 240, 240), # white, 0
-    (242, 178, 51),  # orange, 1
+    (51, 102, 204),  # blue, 1
     (229, 127, 216), # magenta, 2
     (153, 178, 242), # lightBlue, 3
     (222, 222, 108), # yellow, 4
@@ -28,7 +28,7 @@ CC_COLORS = (
     (153, 153, 153), # lightGray, 8
     (76, 153, 178),  # cyan, 9
     (178, 102, 229), # purple, a
-    (51, 102, 204),  # blue, b
+    (242, 178, 51),  # orange, b
     (127, 102, 76),  # brown, c
     (87, 166, 78),   # green, d
     (204, 76, 76),   # red, e
