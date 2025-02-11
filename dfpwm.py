@@ -13,7 +13,7 @@ def encode_dfpwm(input_data):
     strength = 0
     previous_bit = False
 
-    out = np.zeros(len(input_data) // 8, dtype=np.int9)
+    out = np.zeros(len(input_data) // 8, dtype=np.int8)
 
     for i in range(len(out)):
         this_byte = 0
