@@ -81,20 +81,14 @@ def nfp_to_img(nfp):
     return im
 
 # Colors is a list/tuple of 3-item (R, G, B) tuples.
+# Colors is a list/tuple of 3-item (R, G, B) tuples.
 def _quantize_with_colors(image, colors, dither=0):
-    pal_im = Image.new("P", (1, 1))  # Create a palette image
+    pal_im = Image.new("P", (1, 1))
     color_vals = []
-    # Populate the first 16 colors from the ComputerCraft palette
     for color in colors:
-        color_vals.extend(color)  # R, G, B values
-    # Fill the remaining palette entries (17-255) with black (0, 0, 0)
-    color_vals = tuple(color_vals) + (0, 0, 0) * (256 - len(colors))
-    
-    # Apply the palette to the image
-    pal_im.putpalette(color_vals)
-    
-    # Convert the image to RGB before quantization
+        for val in color:
+            color_vals.append(val)
+    color_vals = tuple(color_vals)
+    pal_im.putpalette(color_vals + colors[-1] * (256 - len(colors)))
     image = image.convert(mode="RGB")
-    
-    # Perform quantization using the palette
-    return image.quantize(palette=pal_im, dither=dither)
+    return image.quantize(palette=pal_im,dither=dither)
