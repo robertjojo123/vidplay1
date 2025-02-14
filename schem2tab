@@ -73,7 +73,7 @@ def convert_to_lua(blocks, width, height, length):
     
     for block in blocks:
         block_data = f"data = {block['data']}" if block['data'] is not None else ""
-        lua_table += f"    {{x = {block['x']}, y = {block['y']}, z = {block['z']}, block = '{block['block']}', {block_data}}},\n"
+        lua_table += f"    {{x = {block['x']}, y = {block['y']}, z = {block['z']}, block = '{block['block']}', {block_data}},\n"
     
     lua_table += "}\n"
     return lua_table
