@@ -23,31 +23,42 @@ def load_schematic(filename):
         # Load the .schematic file using nbtlib
         schematic_data = nbtlib.load(filename)
         
-        # Extract basic schematic info (correct access for nbtlib tags)
-        width = schematic_data['Width']  # Access the Width tag directly
-        height = schematic_data['Height']  # Access the Height tag directly
-        length = schematic_data['Length']  # Access the Length tag directly
+        # Print the keys in the NBT data to inspect its structure
+        print("Schematic structure keys:", schematic_data.keys())
         
-        # Extract block data (these may vary)
-        block_data = schematic_data['BlockData']  # No need for .value here
+        # Extract basic schematic info (correct access for nbtlib tags)
+        width = schematic_data['Width']
+        height = schematic_data['Height']
+        length = schematic_data['Length']
+        
+        # Try accessing BlockData and Palette (if they exist)
+        block_data = schematic_data.get('BlockData', None)
+        if block_data is None:
+            print("BlockData key not found. Inspecting other possible locations.")
+            # Check if block data might be nested in another key
+            for key, value in schematic_data.items():
+                print(f"Key: {key}, Value: {value}")
+        
         block_palette = schematic_data.get('Palette', None)  # Check if 'Palette' exists
         
         # Prepare a list of blocks with positions and names
         blocks = []
         
-        for x in range(width):
-            for y in range(height):
-                for z in range(length):
-                    index = x + (y * width) + (z * width * height)
-                    block_id = block_data[index]
-                    block_name = get_block_name(block_id)  # Map block ID to name
-                    if block_name != "unknown":
-                        blocks.append({
-                            'x': x,
-                            'y': y,
-                            'z': z,
-                            'block': block_name
-                        })
+        # If we have valid BlockData
+        if block_data:
+            for x in range(width):
+                for y in range(height):
+                    for z in range(length):
+                        index = x + (y * width) + (z * width * height)
+                        block_id = block_data[index]
+                        block_name = get_block_name(block_id)  # Map block ID to name
+                        if block_name != "unknown":
+                            blocks.append({
+                                'x': x,
+                                'y': y,
+                                'z': z,
+                                'block': block_name
+                            })
         
         return blocks, width, height, length
     except Exception as e:
