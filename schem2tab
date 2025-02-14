@@ -23,8 +23,9 @@ def load_schematic(filename):
         # Load the .schematic file using nbtlib
         schematic_data = nbtlib.load(filename)
         
-        # Print the keys in the NBT data to inspect its structure
-        print("Schematic structure keys:", schematic_data.keys())
+        # Print the entire NBT structure to debug
+        print("Full NBT structure:")
+        print(schematic_data)
         
         # Extract basic schematic info (correct access for nbtlib tags)
         width = schematic_data['Width']
