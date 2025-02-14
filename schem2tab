@@ -1,4 +1,4 @@
-from pycraft import NBT
+import nbtlib
 import os
 
 # Function to get block name from block ID (you may need to extend this list)
@@ -13,28 +13,30 @@ def get_block_name(block_id):
     }
     return block_names.get(block_id, "unknown")
 
-# Load the schematic file using pycraft
+# Load the schematic file using nbtlib
 def load_schematic(filename):
     try:
         # Check if file exists
         if not os.path.isfile(filename):
             raise FileNotFoundError(f"The file '{filename}' was not found.")
         
-        # Load the .schematic file using NBT
-        schematic_data = NBT.load(filename)
+        # Load the .schematic file using nbtlib
+        schematic_data = nbtlib.load(filename)
         
-        # Get block data from the schematic
         blocks = []
-        block_data = schematic_data['BlockData']
-        width = schematic_data['Width']
-        height = schematic_data['Height']
-        length = schematic_data['Length']
+        
+        # Extract block data
+        block_data = schematic_data['BlockData'].value
+        width = schematic_data['Width'].value
+        height = schematic_data['Height'].value
+        length = schematic_data['Length'].value
         
         # Iterate over all blocks in the schematic
         for x in range(width):
             for y in range(height):
                 for z in range(length):
-                    block_id = block_data[x + (y * width) + (z * width * height)]
+                    index = x + (y * width) + (z * width * height)
+                    block_id = block_data[index]
                     if block_id != 0:  # Only include non-air blocks
                         block_name = get_block_name(block_id)  # Map block ID to name
                         blocks.append({
@@ -53,7 +55,7 @@ def load_schematic(filename):
 def convert_to_lua(blocks):
     lua_table = "local schematic = {\n"
     for block in blocks:
-        lua_table += f"    {{x={block['x']}, y={block['y']}, z={block['z']}, block='{block['block']}'}},\n"
+        lua_table += f"    {{x={block['x']}, y={block['y']}, z={block['z']}, block='{block['block']}'}}},\n"
     lua_table += "}\n"
     return lua_table
 
