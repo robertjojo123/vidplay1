@@ -1,7 +1,19 @@
 import nbtlib
 import os
 
-# Load the schematic file and print the structure
+# Function to map block ID to block name
+def get_block_name(block_id):
+    block_names = {
+        1: "stone", 2: "grass", 3: "dirt", 4: "cobblestone",
+        5: "planks", 6: "sapling", 7: "bedrock", 8: "water",
+        9: "lava", 10: "sand", 11: "gravel", 12: "gold_ore",
+        13: "iron_ore", 14: "coal_ore", 15: "wood", 16: "leaves",
+        17: "wooden_planks", 18: "wool", 19: "saplings", 20: "wooden_door",
+        # Add more block types as needed
+    }
+    return block_names.get(block_id, "unknown")
+
+# Load the schematic file and extract block data
 def load_schematic(filename):
     try:
         # Check if file exists
@@ -11,23 +23,68 @@ def load_schematic(filename):
         # Load the .schematic file using nbtlib
         schematic_data = nbtlib.load(filename)
         
-        # Print the structure of the NBT file to understand its contents
-        print("Schematic structure:", schematic_data)
-        print("Keys in schematic data:", schematic_data.keys())
+        # Extract basic schematic info
+        width = schematic_data['Width'].value
+        height = schematic_data['Height'].value
+        length = schematic_data['Length'].value
         
-        return schematic_data
+        # Extract block data (these may vary)
+        block_data = schematic_data['BlockData'].value
+        block_palette = schematic_data['Palette'].value if 'Palette' in schematic_data else None
+        
+        # Prepare a list of blocks with positions and names
+        blocks = []
+        
+        for x in range(width):
+            for y in range(height):
+                for z in range(length):
+                    index = x + (y * width) + (z * width * height)
+                    block_id = block_data[index]
+                    block_name = get_block_name(block_id)  # Map block ID to name
+                    if block_name != "unknown":
+                        blocks.append({
+                            'x': x,
+                            'y': y,
+                            'z': z,
+                            'block': block_name
+                        })
+        
+        return blocks, width, height, length
     except Exception as e:
         print(f"Error loading schematic: {e}")
-        return None
+        return None, None, None, None
 
-# Main function to load the schematic and inspect the structure
+# Convert the block data to a Lua-compatible table
+def convert_to_lua(blocks, width, height, length):
+    lua_table = f"local schematic = {{\n    width = {width},\n    height = {height},\n    length = {length},\n"
+    
+    for block in blocks:
+        lua_table += f"    {{x = {block['x']}, y = {block['y']}, z = {block['z']}, block = '{block['block']}'}}},\n"
+    
+    lua_table += "}\n"
+    return lua_table
+
+# Save the Lua table to a file
+def save_lua_file(lua_code, filename="schematic.lua"):
+    try:
+        with open(filename, 'w') as file:
+            file.write(lua_code)
+        print(f"Lua file saved as {filename}")
+    except Exception as e:
+        print(f"Error saving Lua file: {e}")
+
+# Main function to load, convert, and save the schematic data
 def main():
     # Prompt the user for the schematic file path
     schematic_file = input("Enter the path to the schematic file (e.g., 'schematic.schematic'): ").strip()
     
-    schematic_data = load_schematic(schematic_file)
-    if schematic_data is not None:
-        print("Loaded schematic successfully. Inspect the structure above.")
+    blocks, width, height, length = load_schematic(schematic_file)
+    if blocks is not None:
+        # Convert block data to Lua
+        lua_code = convert_to_lua(blocks, width, height, length)
+        
+        # Save the Lua code to a file
+        save_lua_file(lua_code)
     else:
         print("Failed to load schematic data.")
 
