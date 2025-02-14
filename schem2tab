@@ -1,5 +1,6 @@
 import schematic
 import json
+import os
 
 # Function to get block name from block ID
 def get_block_name(block_id):
@@ -15,25 +16,33 @@ def get_block_name(block_id):
 
 # Load the schematic file using the `schematic` library
 def load_schematic(filename):
-    # Read the schematic file
-    schematic_data = schematic.load(filename)
-    blocks = []
+    try:
+        # Check if file exists
+        if not os.path.isfile(filename):
+            raise FileNotFoundError(f"The file '{filename}' was not found.")
+        
+        # Read the schematic file
+        schematic_data = schematic.load(filename)
+        blocks = []
 
-    # Iterate through all the blocks in the schematic
-    for x in range(schematic_data.width):
-        for y in range(schematic_data.height):
-            for z in range(schematic_data.length):
-                block_id = schematic_data.get_block(x, y, z)
-                if block_id != 0:  # Only include non-air blocks
-                    block_name = get_block_name(block_id)  # Map block ID to name
-                    blocks.append({
-                        'x': x,
-                        'y': y,
-                        'z': z,
-                        'block': block_name
-                    })
+        # Iterate through all the blocks in the schematic
+        for x in range(schematic_data.width):
+            for y in range(schematic_data.height):
+                for z in range(schematic_data.length):
+                    block_id = schematic_data.get_block(x, y, z)
+                    if block_id != 0:  # Only include non-air blocks
+                        block_name = get_block_name(block_id)  # Map block ID to name
+                        blocks.append({
+                            'x': x,
+                            'y': y,
+                            'z': z,
+                            'block': block_name
+                        })
 
-    return blocks
+        return blocks
+    except Exception as e:
+        print(f"Error loading schematic: {e}")
+        return None
 
 # Convert the schematic data into a Lua table format
 def convert_to_lua(blocks):
@@ -45,16 +54,24 @@ def convert_to_lua(blocks):
 
 # Save the Lua table to a file
 def save_lua_file(lua_code, filename="schematic.lua"):
-    with open(filename, 'w') as file:
-        file.write(lua_code)
-    print(f"Lua file saved as {filename}")
+    try:
+        with open(filename, 'w') as file:
+            file.write(lua_code)
+        print(f"Lua file saved as {filename}")
+    except Exception as e:
+        print(f"Error saving Lua file: {e}")
 
 # Main function to load, convert, and save
 def main():
-    schematic_file = "path/to/your/schematic.schematic"  # Replace with your schematic file path
+    # Prompt the user for the schematic file path
+    schematic_file = input("Enter the path to the schematic file (e.g., 'schematic.schematic'): ").strip()
+    
     blocks = load_schematic(schematic_file)
-    lua_code = convert_to_lua(blocks)
-    save_lua_file(lua_code)
+    if blocks is not None:
+        lua_code = convert_to_lua(blocks)
+        save_lua_file(lua_code)
+    else:
+        print("No valid schematic data to convert.")
 
 if __name__ == "__main__":
     main()
