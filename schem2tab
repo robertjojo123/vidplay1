@@ -1,7 +1,7 @@
-import mcimport
+from pycraft import NBT
 import os
 
-# Function to get block name from block ID
+# Function to get block name from block ID (you may need to extend this list)
 def get_block_name(block_id):
     block_names = {
         1: "stone", 2: "grass", 3: "dirt", 4: "cobblestone",
@@ -13,22 +13,28 @@ def get_block_name(block_id):
     }
     return block_names.get(block_id, "unknown")
 
-# Load the schematic file using mcimport library
+# Load the schematic file using pycraft
 def load_schematic(filename):
     try:
         # Check if file exists
         if not os.path.isfile(filename):
             raise FileNotFoundError(f"The file '{filename}' was not found.")
         
-        # Read the schematic file using mcimport
-        schematic_data = mcimport.import_schematic(filename)
+        # Load the .schematic file using NBT
+        schematic_data = NBT.load(filename)
+        
+        # Get block data from the schematic
         blocks = []
-
-        # Iterate through all the blocks in the schematic
-        for x in range(schematic_data['width']):
-            for y in range(schematic_data['height']):
-                for z in range(schematic_data['length']):
-                    block_id = schematic_data['blocks'][x][y][z]
+        block_data = schematic_data['BlockData']
+        width = schematic_data['Width']
+        height = schematic_data['Height']
+        length = schematic_data['Length']
+        
+        # Iterate over all blocks in the schematic
+        for x in range(width):
+            for y in range(height):
+                for z in range(length):
+                    block_id = block_data[x + (y * width) + (z * width * height)]
                     if block_id != 0:  # Only include non-air blocks
                         block_name = get_block_name(block_id)  # Map block ID to name
                         blocks.append({
