@@ -23,14 +23,14 @@ def load_schematic(filename):
         # Load the .schematic file using nbtlib
         schematic_data = nbtlib.load(filename)
         
-        # Extract basic schematic info
-        width = schematic_data['Width'].value
-        height = schematic_data['Height'].value
-        length = schematic_data['Length'].value
+        # Extract basic schematic info (correct access for nbtlib tags)
+        width = schematic_data['Width']  # Access the Width tag directly
+        height = schematic_data['Height']  # Access the Height tag directly
+        length = schematic_data['Length']  # Access the Length tag directly
         
         # Extract block data (these may vary)
-        block_data = schematic_data['BlockData'].value
-        block_palette = schematic_data['Palette'].value if 'Palette' in schematic_data else None
+        block_data = schematic_data['BlockData']  # No need for .value here
+        block_palette = schematic_data.get('Palette', None)  # Check if 'Palette' exists
         
         # Prepare a list of blocks with positions and names
         blocks = []
